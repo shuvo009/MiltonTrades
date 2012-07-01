@@ -1,0 +1,85 @@
+﻿<Window x:Name="window" x:Class="MiltonTrades.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Milton Trades" Height="580" Width="863.5" mc:Ignorable="d" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:my="clr-namespace:MiltonTrades" Loaded="Window_Loaded" Background="#FF646464" FontSize="14.667" Icon="MiltonTrades.ico">
+    <Window.Resources>
+    	<my:SumDeposit x:Key="SumDeposit"/>
+    	<my:SumWithDraw x:Key="SumWithDraw"/>
+		<my:balance x:Key="balanceAmount"/>
+    	<CollectionViewSource x:Key="accountsViewSource" d:DesignSource="{d:DesignInstance {x:Type my:Account}, CreateList=True}" />
+    	<CollectionViewSource x:Key="accountsTransictionTablesViewSource" Source="{Binding TransictionTables, Source={StaticResource accountsViewSource}}" />
+    </Window.Resources>
+    <Grid DataContext="{StaticResource accountsViewSource}">
+    	<Grid.ColumnDefinitions>
+    		<ColumnDefinition Width="0.776*"/>
+    		<ColumnDefinition Width="0.128*"/>
+    		<ColumnDefinition Width="0.096*"/>
+    	</Grid.ColumnDefinitions>
+    	<Grid.RowDefinitions>
+    		<RowDefinition Height="0.526*"/>
+    		<RowDefinition Height="0.251*"/>
+    		<RowDefinition Height="0.223*"/>
+    	</Grid.RowDefinitions>
+        <DataGrid AutoGenerateColumns="False" EnableRowVirtualization="True" ItemsSource="{Binding}" Name="accountsDataGrid" RowDetailsVisibilityMode="VisibleWhenSelected" Margin="8,8,0,7">
+            <DataGrid.Columns>
+                <DataGridTextColumn x:Name="numberColumn" Binding="{Binding Path=Number}" Header="Number" MinWidth="100" Width="SizeToHeader" />
+                <DataGridTemplateColumn x:Name="dateColumn" Header="Date" MinWidth="120" Width="SizeToHeader">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <DatePicker SelectedDate="{Binding Path=Date, Mode=TwoWay, ValidatesOnExceptions=true, NotifyOnValidationError=true}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn x:Name="accountInformationColumn" MinWidth="400" Binding="{Binding Path=AccountInformation}" Header="Account Information" Width="SizeToHeader" />
+            </DataGrid.Columns>
+        </DataGrid>
+        <DataGrid AutoGenerateColumns="False" EnableRowVirtualization="True" IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding Source={StaticResource accountsTransictionTablesViewSource}}" Margin="8,7,3,8" Name="transictionTablesDataGrid" RowDetailsVisibilityMode="VisibleWhenSelected" Grid.Row="1" d:LayoutOverrides="VerticalAlignment" Grid.RowSpan="2">
+            <DataGrid.Columns>
+                <DataGridTextColumn x:Name="numberColumn1" Binding="{Binding Path=Number}" Header="Number" MinWidth="80"  Width="SizeToHeader" />
+                <DataGridTemplateColumn x:Name="dateColumn1" MinWidth="120"  Header="Date" Width="SizeToHeader">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <DatePicker SelectedDate="{Binding Path=Date, Mode=TwoWay, ValidatesOnExceptions=true, NotifyOnValidationError=true}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn x:Name="descriptionColumn" MinWidth="200" Binding="{Binding Path=Description}" Header="Description" Width="SizeToHeader" />
+                <DataGridTextColumn x:Name="withdrawAmountColumn" Binding="{Binding Path=WithdrawAmount}" Header="Withdraw Amount" Width="SizeToHeader" />
+                <DataGridTextColumn x:Name="depositAmountColumn" Binding="{Binding Path=DepositAmount}" Header="Deposit Amount" Width="SizeToHeader" />
+            </DataGrid.Columns>
+        </DataGrid>
+        <Button Content="_Update" IsDefault="True" Height="28" Margin="39,90.408,8,0" Name="button1" VerticalAlignment="Top" Click="button1_Click" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Command="{Binding UpdateCommand, ElementName=window, Mode=OneWay}" CommandParameter="No Parameter"/>
+        <Button Content="_Delete Party" Height="28" Margin="39,53,8,0" x:Name="button1_Copy" VerticalAlignment="Top" Click="button1_Click" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Command="{Binding DeletePartyCommand, ElementName=window, Mode=OneWay}" CommandParameter="{Binding SelectedItems, ElementName=accountsDataGrid}" />
+        <Button Content="_Print" Height="28" Margin="39,-13.5,8,0" x:Name="button1_Copy1" VerticalAlignment="Top" Click="button1_Click" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Command="{Binding PrintCommand, ElementName=window, Mode=OneWay}" CommandParameter="{Binding SelectedItem, ElementName=accountsDataGrid}" d:LayoutOverrides="VerticalAlignment" />
+        <TextBlock Margin="0,7,0,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Text="Total Withdraw :" Grid.Column="1" HorizontalAlignment="Right" Foreground="#FFF3F3F3"/>
+        <Button Content="Delete _Transaction" Height="28" Margin="39,85,8,0" x:Name="button1_Copy2" VerticalAlignment="Top" Click="button1_Click" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" Command="{Binding DeleteTranscationCommand, ElementName=window, Mode=OneWay}" CommandParameter="{Binding SelectedItems, ElementName=transictionTablesDataGrid}" />
+        <TextBlock Margin="0,27.62,0,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Grid.Column="1" Text="Total Deposit :" HorizontalAlignment="Right" Foreground="#FFF3F3F3"/>
+        <TextBlock x:Name="WithDrawAmount" Margin="4,8,0,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Text="{Binding ItemsSource, Converter={StaticResource SumWithDraw}, ElementName=transictionTablesDataGrid,  UpdateSourceTrigger=PropertyChanged}" Grid.Column="2" Foreground="#FFF3F3F3" HorizontalAlignment="Left"/>
+        <TextBlock x:Name="DepositAmount" Margin="4,27.506,0,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" Grid.Column="2" Foreground="#FFF3F3F3" HorizontalAlignment="Left" Text="{Binding ItemsSource, Converter={StaticResource SumDeposit}, ElementName=transictionTablesDataGrid,UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBlock Margin="0,48.67,0,67.731" Grid.Row="1" TextWrapping="Wrap" Grid.Column="1" Text="Balance :" HorizontalAlignment="Right" Foreground="#FFF3F3F3" d:LayoutOverrides="Height"/>
+        <Separator Grid.Column="1" Margin="1,47.42,0,0" Grid.Row="1" Height="1.25" VerticalAlignment="Top" Foreground="#FFF3F3F3" Grid.ColumnSpan="2"/>
+        <TextBlock x:Name="TransBlance" Margin="4,51.012,0,65.389" Grid.Row="1" TextWrapping="Wrap" Grid.Column="2" Foreground="#FFF3F3F3" HorizontalAlignment="Left" d:LayoutOverrides="Height">
+        	<TextBlock.Text>
+        		<MultiBinding Converter="{StaticResource balanceAmount}">
+        			<Binding Path="Text" ElementName="WithDrawAmount"/>
+					<Binding Path="Text" ElementName="DepositAmount"/>  		
+				</MultiBinding>     	
+			</TextBlock.Text>      
+		</TextBlock>
+        <TextBlock Margin="0,6.842,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="Total Sales :" Grid.Column="1" HorizontalAlignment="Right" Foreground="#FFF3F3F3"/>
+        <TextBlock Margin="0,26.052,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Grid.Column="1" Text="Total Received :" HorizontalAlignment="Right" Foreground="#FFF3F3F3"/>
+        <TextBlock x:Name="TotalSales" Margin="4,8,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="00" Grid.Column="2" Foreground="#FFF3F3F3" HorizontalAlignment="Left"/>
+        <TextBlock x:Name="TotalReceive" Margin="4,27.505,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="00" Grid.Column="2" Foreground="#FFF3F3F3" HorizontalAlignment="Left"/>
+        <TextBlock Margin="0,52.262,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Grid.Column="1" Text="Balance :" HorizontalAlignment="Right" Foreground="#FFF3F3F3"/>
+        <Separator Grid.Column="1" Margin="0.999,47.012,0.001,0" Height="1.25" VerticalAlignment="Top" Foreground="#FFF3F3F3" Grid.ColumnSpan="2"/>
+        <TextBlock x:Name="TotalBalance" Margin="4,52.262,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Grid.Column="2" Foreground="#FFF3F3F3" HorizontalAlignment="Left">
+        	<TextBlock.Text>
+        		<MultiBinding Converter="{StaticResource balanceAmount}">
+        			<Binding Path="Text" ElementName="TotalSales"/>
+					<Binding Path="Text" ElementName="TotalReceive"/>  		
+				</MultiBinding>     	
+			</TextBlock.Text>      
+		</TextBlock>
+        <Button Content="_Database" Height="28" Margin="39,18.5,8,0" x:Name="button1_Copy3" VerticalAlignment="Top" Click="button1_Click" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Command="{Binding DatabaseCommand, ElementName=window, Mode=OneWay}" CommandParameter="No Parameter" d:LayoutOverrides="VerticalAlignment" />
+    </Grid>
+</Window>
